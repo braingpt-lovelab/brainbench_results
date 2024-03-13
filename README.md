@@ -1,5 +1,20 @@
 # brainbench_results
-Raw results and plotting scripts for paper https://arxiv.org/abs/2403.03230 
+Raw results and plotting scripts for paper https://arxiv.org/abs/2403.03230
+
+### To plot figures in the paper:
+* Fig. 3A: `python overall_accuracy_model_vs_human.py`
+* Fig. 3B: `python accuracy_by_subfields.py`
+* Fig. 3C: `python accuracy_by_positions.py`
+* (Will support other figures in near future).
+
+### To obtain human results:
+Please refer to the dedicated repo - [https://github.com/braingpt-lovelab/brainbench_participant_data/tree/main](https://github.com/braingpt-lovelab/brainbench_participant_data/tree/a819a1b3766abe4817b1ef81ebe7a0a7a351aa99)
+
+### To obtain model results:
+Model perplexities on BrainBench testcases:
+* For human created testcases, see `model_results/<model_name>/human_abstracts/PPL_A_and_B.npy`, which is a 2D numpy array, with shape `(num_testcases, 2)`, `PPL_A_and_B[i][0]` is the perplexity of the first abstract of the ith testcase.
+* For GPT-4 created testcases, see `model_results/<model_name>/llm_abstracts/PPL_A_and_B.npy`
+* For each testcase's ground truth, see `model_results/<model_name>/<human|llm_abstracts>/labels.npy`, which is a 1D numpy array, with shape `(num_testcases, )`. Specifically, `label=0` means the first abstract of this testcase is the correct answer, and `label=1` means the second abstract of the testcase is the correct answer.
 
 ### Attribution
 ```
