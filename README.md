@@ -1,6 +1,11 @@
 # brainbench_results
 Raw results and plotting scripts for paper https://arxiv.org/abs/2403.03230
 
+### To work with this repo locally:
+```
+git clone git@github.com:braingpt-lovelab/brainbench_results.git --recursive
+```
+
 ### To plot figures in the paper:
 * Fig. 3A: `python overall_accuracy_model_vs_human.py`
 * Fig. 3B: `python accuracy_by_subfields.py`
