@@ -11,6 +11,8 @@ from utils import model_list
 from utils import argparse_helper
 from utils import scorer
 
+plt.rcParams.update({'font.size': 16, 'font.weight': 'bold'})
+
 
 def get_llm_acc_subfields(use_human_abstract=True):
     if use_human_abstract:
@@ -120,6 +122,79 @@ def get_subfield_proportions(use_human_abstract):
     return subfield_proportions
 
 
+def bar_plot(use_human_abstract):
+    fig, axes = plt.subplots(3, 2, figsize=(15, 15))  # Create a 3x2 subplot grid
+    axes = axes.flatten()  # Flatten the axes array for easier indexing
+    all_subfields_human = get_human_acc_subfields(use_human_abstract)
+    all_subfields_llms = get_llm_acc_subfields(use_human_abstract)
+
+    subfield_idx = 0  # Track the current subfield being processed
+    for subfield in subfields.subfield_names:
+        ax = axes[subfield_idx]
+        subfield_idx += 1
+
+        # Plot human accuracy
+        ax.bar(
+            0,
+            all_subfields_human[subfield],
+            color="blue", alpha=0.5,
+            label="Human experts",
+            edgecolor="black",
+        )
+
+        # Plot llm accuracy
+        llm_i = 1
+        for llm_family in model_list.llms.keys():
+            for llm in model_list.llms[llm_family]:
+                llm_legend = model_list.llms[llm_family][llm]['llm']
+                if llm_legend == "Falcon-180B\n  (chat)":
+                    llm_legend = "Falcon-180B (chat)"
+                ax.bar(
+                    llm_i,
+                    all_subfields_llms[subfield][llm]['acc'],
+                    color=all_subfields_llms[subfield][llm]['color'],
+                    alpha=all_subfields_llms[subfield][llm]['alpha'],
+                    hatch=all_subfields_llms[subfield][llm]['hatch'],
+                    label=llm_legend,
+                    edgecolor="black",
+                )
+                llm_i += 1
+
+        if subfield == "Development/Plasticity/Repair":
+            subfield_title = "Development/Plasticity/Repair"
+        else:
+            subfield_title = subfield
+        ax.set_title(f"{subfield_title}")
+        ax.set_xticks([])
+        ax.set_ylim(0, 1)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.set_ylabel("Accuracy")
+    
+    # Remove the plot subplot to be empty and 
+    # be able to place the legend in the last subplot
+    fig.delaxes(axes[-1])
+
+    # Place the legend in the last subplot (bottom right)
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles, labels, loc='lower right', ncol=2,
+        bbox_to_anchor=(.95, .22)
+    )
+
+    # Adjust layout and spacing
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.2, right=0.85)
+
+    # Save figure
+    base_fname = "figs/accuracy_all_subfields"
+    if use_human_abstract:
+        plt.savefig(f"{base_fname}_human_abstract.pdf")
+    else:
+        plt.savefig(f"{base_fname}_llm_abstract.pdf")
+    plt.close(fig)
+
+
 def radar_plot(use_human_abstract):
     from math import pi
 
@@ -195,6 +270,7 @@ def radar_plot(use_human_abstract):
     plt.close(fig)
 
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -207,3 +283,4 @@ if __name__ == "__main__":
     human_results_dir = "human_results"
     testcases_dir = "testcases"
     radar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
+    bar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
