@@ -7,8 +7,8 @@ git clone git@github.com:braingpt-lovelab/brainbench_results.git --recursive
 ```
 
 ### To plot figures in the paper:
-* Fig. 3A: `python overall_accuracy_model_vs_human.py`
-* Fig. 3B: `python accuracy_by_subfields.py`
+* Fig. 3A | Fig. S8: `python overall_accuracy_model_vs_human.py --use_human_abstract <True|False>`
+* Fig. 3B | Fig. S9: `python accuracy_by_subfields.py --use_human_abstract <True|False>`
 * Fig. 3C: `python accuracy_by_positions.py`
 * Fig. 5: `python finetuning_boost.py`
 * (Will support other figures in near future).
