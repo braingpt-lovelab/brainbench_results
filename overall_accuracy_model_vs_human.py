@@ -9,7 +9,7 @@ from utils import argparse_helper
 from utils import scorer
 
 
-def get_llm_accuracies(use_human_abstract=True):
+def get_llm_accuracies(model_results_dir, use_human_abstract=True):
     llms = model_list.llms
     for llm_family in llms.keys():
         for llm in llms[llm_family]:
@@ -93,7 +93,7 @@ def plot(use_human_abstract):
 
     2) Plot human experts as a horizontal line
     """
-    llms = get_llm_accuracies(use_human_abstract)
+    llms = get_llm_accuracies(model_results_dir, use_human_abstract)
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
