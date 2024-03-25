@@ -13,7 +13,9 @@ git clone git@github.com:braingpt-lovelab/brainbench_results.git --recursive
 * Fig. 4 | Fig. S13: `python calibration_machine_and_human.py --use_human_abstract <True|False>`
 * Fig. 5: `python finetuning_boost.py`
 * Fig. S2: `python iso_overall_accuracy_model_vs_human.py`
-* Fig. S4 | Fig. S12 `python error_correlation_human_vs_machine.py`
+* Fig. S4 | Fig. S12: `python error_correlation_human_vs_machine.py`
+* Fig. S5: `python eval_leakage.py`
+* Fig. S6: `python accuracy_correlate_pubdate.py`
 
 ### To obtain human results:
 Please refer to the dedicated repo - [https://github.com/braingpt-lovelab/brainbench_participant_data/tree/main](https://github.com/braingpt-lovelab/brainbench_participant_data/tree/a819a1b3766abe4817b1ef81ebe7a0a7a351aa99)
