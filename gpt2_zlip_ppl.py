@@ -107,8 +107,8 @@ def plot(metric):
         ZLIB_A_and_B = np.load(f"{results_dir}/ZLIB_A_and_B.npy")
         labels = np.load(f"{results_dir}/{label_fname}.npy")
 
-        PPL_j_of_neuro = np.load(f"{results_dir}/j_of_neuro/PPL.npy")
-        ZLIB_j_of_neuro = np.load(f"{results_dir}/j_of_neuro/ZLIB.npy")
+        PPL_j_of_neuro = np.load(f"{model_results_dir}/{llm.replace('/', '--')}/j_of_neuro/PPL.npy")
+        ZLIB_j_of_neuro = np.load(f"{model_results_dir}/{llm.replace('/', '--')}/j_of_neuro/ZLIB.npy")
 
         ax = axes[i]
         if i != 0:
