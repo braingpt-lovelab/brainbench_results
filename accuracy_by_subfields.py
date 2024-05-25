@@ -79,7 +79,7 @@ def get_llm_acc_subfields(use_human_abstract=True):
     return all_subfields_llms
 
 
-def get_human_acc_subfields(use_human_abstract):
+def get_human_acc_subfields(use_human_abstract, top_npct_expertise=None):
     df = pd.read_csv(f"{human_results_dir}/data/participant_data.csv")
     if use_human_abstract:
         who = "human"
@@ -90,13 +90,19 @@ def get_human_acc_subfields(use_human_abstract):
         lambda: collections.defaultdict()
     )
     for subfield in subfields.subfield_names:
-        correct = 0
-        total = 0
+        correct = []
+        expertise = []
         for _, row in df.iterrows():
             if row["journal_section"].startswith(who) and row["journal_section"].endswith(subfield):
-                correct += row["correct"]
-                total += 1
-        all_subfields_human[subfield] = (correct / total)
+                correct.append(row["correct"])
+                expertise.append(row["expertise"])
+
+        if top_npct_expertise:
+            top_20_percentile = np.percentile(expertise, 100 - top_npct_expertise)
+            correct = [c for c, e in zip(correct, expertise) if e >= top_20_percentile]
+
+        all_subfields_human[subfield] = np.mean(correct)
+        
     return all_subfields_human
 
 
@@ -122,10 +128,10 @@ def get_subfield_proportions(use_human_abstract):
     return subfield_proportions
 
 
-def bar_plot(use_human_abstract):
+def bar_plot(use_human_abstract, top_npct_expertise=None):
     fig, axes = plt.subplots(3, 2, figsize=(15, 15))  # Create a 3x2 subplot grid
     axes = axes.flatten()  # Flatten the axes array for easier indexing
-    all_subfields_human = get_human_acc_subfields(use_human_abstract)
+    all_subfields_human = get_human_acc_subfields(use_human_abstract, top_npct_expertise)
     all_subfields_llms = get_llm_acc_subfields(use_human_abstract)
 
     subfield_idx = 0  # Track the current subfield being processed
@@ -195,7 +201,7 @@ def bar_plot(use_human_abstract):
     plt.close(fig)
 
 
-def radar_plot(use_human_abstract):
+def radar_plot(use_human_abstract, top_npct_expertise=None):
     from math import pi
 
     subfield_abbreviations = {
@@ -206,7 +212,7 @@ def radar_plot(use_human_abstract):
         "Systems/Circuits": "Sys/Circ"
     }
     
-    all_subfields_human = get_human_acc_subfields(use_human_abstract)
+    all_subfields_human = get_human_acc_subfields(use_human_abstract, top_npct_expertise)
     all_subfields_llms = get_llm_acc_subfields(use_human_abstract)
 
     # Initialize figure for comparing human and average LLM accuracy
@@ -263,10 +269,15 @@ def radar_plot(use_human_abstract):
     plt.tight_layout()
 
     # Save the comparison figure
+    fname = "figs/comparison_human_llm_accuracy_subfields"
     if use_human_abstract:
-        plt.savefig("figs/comparison_human_llm_accuracy_subfields_human_abstract.pdf")
+        plt.savefig(f"{fname}_human_abstract.pdf")
+        if top_npct_expertise:
+            plt.savefig(f"{fname}_human_abstract_top{top_npct_expertise}.pdf")
     else:
-        plt.savefig("figs/comparison_human_llm_accuracy_subfields_llm_abstract.pdf")
+        plt.savefig(f"{fname}_llm_abstract.pdf")
+        if top_npct_expertise:
+            plt.savefig(f"{fname}_llm_abstract_top{top_npct_expertise}.pdf")
     plt.close(fig)
 
 
@@ -278,9 +289,17 @@ if __name__ == "__main__":
         type=argparse_helper.str2bool,
         default=True
     )
+    parser.add_argument(
+        "--top_npct_expertise",
+        type=int,
+        default=None
+    )
 
     model_results_dir = "model_results"
     human_results_dir = "human_results"
     testcases_dir = "testcases"
-    radar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
-    bar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
+    radar_plot(
+        use_human_abstract=parser.parse_args().use_human_abstract, 
+        top_npct_expertise=parser.parse_args().top_npct_expertise
+    )
+    # bar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
