@@ -82,6 +82,10 @@ def _plot_correct_ppl_vs_zlib(
 
     if llm == "gpt2":
         llm_name = "GPT-2 (pretrained)"
+
+    elif llm == "finetune_gpt2":
+        llm_name = "GPT-2 (finetuned)"
+
     elif llm == "gpt2_scratch_neuro_tokenizer":
         llm_name = "GPT-2 (scratch + neuro tokenizer)"
 
@@ -136,6 +140,7 @@ if __name__ == "__main__":
 
     llms = [
         "gpt2",
+        "finetune_gpt2",
         "gpt2_scratch_neuro_tokenizer"
     ]
 
