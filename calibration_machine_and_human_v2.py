@@ -44,18 +44,10 @@ def _plot_calibration_machine(PPL_A_and_B, labels, llm, llm_family, ax):
     hatch = llms[llm_family][llm]["hatch"]
     llm = llms[llm_family][llm]["llm"]
 
-    # # Use abs diff between A/B PPL as confidence.
-    # # Convert confidences to ranks for linear binning.
-    # # From low confidence (small rank) to high confidence (large rank).
-    # PPL_A_and_B_diff = np.abs(PPL_A_and_B[:, 0] - PPL_A_and_B[:, 1])
-    # confidences = stats.rankdata(PPL_A_and_B_diff, method='ordinal') - 1.
     P_A_and_B = F.softmax(torch.tensor(PPL_A_and_B), dim=1)
-    # Get the top answer's probability
     P_A_and_B_max = P_A_and_B.max(dim=1).values.numpy()
 
-    # Bin the confidences and compute the accuracy per bin
-    # bin_boundaries = np.linspace(0, len(confidences), n_bins + 1)
-    bin_boundaries = np.linspace(0, 1, n_bins + 1)
+    bin_boundaries = np.linspace(0.5, 1, n_bins + 1)
     bin_lowers = bin_boundaries[:-1]
     bin_uppers = bin_boundaries[1:]
     bin_heights = []  # acc in each bin
@@ -107,7 +99,7 @@ def _plot_calibration_machine(PPL_A_and_B, labels, llm, llm_family, ax):
 
     ax.set_ylabel("Accuracy")
     ax.set_xlabel("Top answer proba.")
-    ax.set_xticks([0, 1])
+    ax.set_xticks([0.5, 1])
     ax.set_ylim(0, 1)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -124,19 +116,19 @@ def _plot_calibration_machine(PPL_A_and_B, labels, llm, llm_family, ax):
     # x = x[non_empty_bins]
     # y = y[non_empty_bins]
 
-    slope, intercept, rvalue, pvalue, stderr = stats.linregress(x, y)
+    # slope, intercept, rvalue, pvalue, stderr = stats.linregress(x, y)
 
-    print(y)
-    print(slope)
+    # print(y)
+    # print(slope)
     
-    ax.plot(
-        x, 
-        intercept + slope * x, 
-        color='k', 
-        alpha=1, 
-        linestyle='-',
-        linewidth=plt.rcParams['lines.linewidth'] * 2,
-    )
+    # ax.plot(
+    #     x, 
+    #     intercept + slope * x, 
+    #     color='k', 
+    #     alpha=1, 
+    #     linestyle='-',
+    #     linewidth=plt.rcParams['lines.linewidth'] * 2,
+    # )
     return ax
 
 
