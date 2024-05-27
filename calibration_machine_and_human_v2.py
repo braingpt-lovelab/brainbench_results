@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 from torch.nn import functional as F
 
@@ -213,7 +214,7 @@ def _plot_calibration_human(human_results_dir, ax):
     )
 
 
-def main():
+def plot_calibration_human_and_machines():
     """
     4*4 figure, with the first subplot for human experts, and the rest for LLMs.
     """
@@ -257,6 +258,70 @@ def main():
     plt.savefig(f"figs/calibration_{type_of_abstract}_v2.pdf")
     plt.close()
         
+
+def logistic_regression_calibration():
+    """
+    Train LR on x: abs(PPL_A - PPL_B), y: correct or not for each testcase
+    """
+    # model logisitic regression
+    # using ppl diff to predict correct or not
+    for llm_family in llms:
+        for llm in llms[llm_family]:
+            results_dir = f"{model_results_dir}/{llm.replace('/', '--')}/{type_of_abstract}"
+            PPL_A_and_B = np.load(f"{results_dir}/{PPL_fname}.npy")
+            labels = np.load(f"{results_dir}/{label_fname}.npy")
+
+            # Calculate x: abs(PPL_A - PPL_B), y: correct or not
+            x = np.abs(PPL_A_and_B[:, 0] - PPL_A_and_B[:, 1])
+            y = []
+            for abstract_idx, (ppl_A, ppl_B) in enumerate(PPL_A_and_B):
+                if (
+                    labels[abstract_idx] == 0 and ppl_A < ppl_B
+                ) or (
+                    labels[abstract_idx] == 1 and ppl_A > ppl_B
+                ):
+                    y.append(1)
+                else:
+                    y.append(0)
+            
+            # Train LR
+            x = np.array(x).reshape(-1, 1)
+            y = np.array(y)
+            clf = LogisticRegression(random_state=0).fit(x, y)
+            llm = llms[llm_family][llm]["llm"]
+            print(f"\n{llm}")
+            print(f"Coef: {clf.coef_[0][0]:.2f}")
+            print(f"Intercept: {clf.intercept_[0]:.2f}")
+    
+    # human logisitic regression
+    # using confidence to predict correct or not
+    df = pd.read_csv(f"{human_results_dir}/data/participant_data.csv")
+    if use_human_abstract:
+        who = "human"
+    else:
+        who = "machine"
+    confidences = []
+    corrects_n_incorrects = []  # 1 and 0
+    for _, row in df.iterrows():
+        if row["journal_section"].startswith(who):
+            # get confidence and correct
+            confidence = row["confidence"]
+            correct = row["correct"]
+            confidences.append(confidence)
+            corrects_n_incorrects.append(correct)
+    
+    x = np.array(confidences).reshape(-1, 1)
+    y = np.array(corrects_n_incorrects)
+    clf = LogisticRegression(random_state=0).fit(x, y)
+    print(f"\nHuman experts")
+    print(f"Coef: {clf.coef_[0][0]:.2f}")
+    print(f"Intercept: {clf.intercept_[0]:.2f}")
+
+
+def main():
+    # plot_calibration_human_and_machines()
+    logistic_regression_calibration()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
