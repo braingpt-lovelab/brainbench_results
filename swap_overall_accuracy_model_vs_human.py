@@ -23,7 +23,7 @@ def get_llm_accuracies(model_results_dir, use_human_abstract=True):
 
             results_dir = os.path.join(
                 f"{model_results_dir}/{llm.replace('/', '--')}/"\
-                f"{type_of_abstract}/seed{args.seed}"
+                f"{type_of_abstract}/swap_seed{args.seed}"
             )
 
             PPL_fname = "PPL_A_and_B"
@@ -148,9 +148,9 @@ def plot(use_human_abstract):
     plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1))
     plt.tight_layout()
     if use_human_abstract:
-        plt.savefig(f"figs/{base_fname}_human_abstract.pdf")
+        plt.savefig(f"{figs_dir}/{base_fname}_human_abstract.pdf")
     else:
-        plt.savefig(f"figs/{base_fname}_llm_abstract.pdf")
+        plt.savefig(f"{figs_dir}/{base_fname}_llm_abstract.pdf")
 
 
 if __name__ == "__main__":
@@ -161,5 +161,6 @@ if __name__ == "__main__":
 
     model_results_dir = "model_results"
     human_results_dir = "human_results"
-    base_fname = f"figs/swap_seed{args.seed}_overall_accuracy_model_vs_human"
+    figs_dir = "figs"
+    base_fname = f"swap_seed{args.seed}_overall_accuracy_model_vs_human"
     plot(parser.parse_args().use_human_abstract)
