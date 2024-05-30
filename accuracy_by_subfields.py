@@ -61,9 +61,14 @@ def get_llm_acc_subfields(use_human_abstract=True):
                         results_by_subfield[subfield].append([ppl_A, ppl_B])
                         labels_by_subfield[subfield].append(labels[j])
 
-                # Compute acc by category
+                # Compute acc and sem by category
                 all_subfields_llms[subfield][llm]['acc'] = \
                     scorer.acc(
+                        np.array(results_by_subfield[subfield]), 
+                        np.array(labels_by_subfield[subfield])
+                )
+                all_subfields_llms[subfield][llm]['sem'] = \
+                    scorer.sem(
                         np.array(results_by_subfield[subfield]), 
                         np.array(labels_by_subfield[subfield])
                 )
@@ -86,9 +91,10 @@ def get_human_acc_subfields(use_human_abstract, top_npct_expertise=None):
     else:
         who = "machine"
 
-    all_subfields_human = collections.defaultdict(
+    all_subfields_human_acc = collections.defaultdict(
         lambda: collections.defaultdict()
     )
+    all_subfields_human_sem = {}
     for subfield in subfields.subfield_names:
         correct = []
         expertise = []
@@ -101,9 +107,11 @@ def get_human_acc_subfields(use_human_abstract, top_npct_expertise=None):
             top_20_percentile = np.percentile(expertise, 100 - top_npct_expertise)
             correct = [c for c, e in zip(correct, expertise) if e >= top_20_percentile]
 
-        all_subfields_human[subfield] = np.mean(correct)
-        
-    return all_subfields_human
+        all_subfields_human_acc[subfield] = np.mean(correct)
+        all_subfields_human_sem[subfield] = np.sqrt(
+            all_subfields_human_acc[subfield] * (1 - all_subfields_human_acc[subfield]) / len(correct)
+        )
+    return all_subfields_human_acc, all_subfields_human_sem
 
 
 def get_subfield_proportions(use_human_abstract):
@@ -131,7 +139,7 @@ def get_subfield_proportions(use_human_abstract):
 def bar_plot(use_human_abstract, top_npct_expertise=None):
     fig, axes = plt.subplots(3, 2, figsize=(15, 15))  # Create a 3x2 subplot grid
     axes = axes.flatten()  # Flatten the axes array for easier indexing
-    all_subfields_human = get_human_acc_subfields(use_human_abstract, top_npct_expertise)
+    all_subfields_human, all_subfields_human_sem = get_human_acc_subfields(use_human_abstract, top_npct_expertise)
     all_subfields_llms = get_llm_acc_subfields(use_human_abstract)
 
     subfield_idx = 0  # Track the current subfield being processed
@@ -143,9 +151,11 @@ def bar_plot(use_human_abstract, top_npct_expertise=None):
         ax.bar(
             0,
             all_subfields_human[subfield],
+            yerr=all_subfields_human_sem[subfield],
             color="blue", alpha=0.5,
             label="Human experts",
             edgecolor="black",
+            capsize=3
         )
 
         # Plot llm accuracy
@@ -158,11 +168,13 @@ def bar_plot(use_human_abstract, top_npct_expertise=None):
                 ax.bar(
                     llm_i,
                     all_subfields_llms[subfield][llm]['acc'],
+                    yerr=all_subfields_llms[subfield][llm]['sem'],
                     color=all_subfields_llms[subfield][llm]['color'],
                     alpha=all_subfields_llms[subfield][llm]['alpha'],
                     hatch=all_subfields_llms[subfield][llm]['hatch'],
                     label=llm_legend,
                     edgecolor="black",
+                    capsize=3
                 )
                 llm_i += 1
 
@@ -298,8 +310,8 @@ if __name__ == "__main__":
     model_results_dir = "model_results"
     human_results_dir = "human_results"
     testcases_dir = "testcases"
-    radar_plot(
-        use_human_abstract=parser.parse_args().use_human_abstract, 
-        top_npct_expertise=parser.parse_args().top_npct_expertise
-    )
-    # bar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
+    # radar_plot(
+    #     use_human_abstract=parser.parse_args().use_human_abstract, 
+    #     top_npct_expertise=parser.parse_args().top_npct_expertise
+    # )
+    bar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
