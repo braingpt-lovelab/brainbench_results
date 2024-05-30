@@ -95,6 +95,7 @@ def overall_accuracy_human_vs_machine_created_cases_by_type_of_researcher(
     plt.grid(axis='y', linestyle='--', alpha=0.6)
     plt.legend(loc='lower right', ncol=3, bbox_to_anchor=(1, -0.))
     plt.savefig(f"figs/accuracy_{who}_by_type_of_researcher.svg")
+    plt.savefig(f"figs/accuracy_{who}_by_type_of_researcher.pdf")
     plt.close(fig)
         
 
