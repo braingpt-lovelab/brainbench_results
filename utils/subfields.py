@@ -1,8 +1,8 @@
 subfield_names = [
-        "Development/Plasticity/Repair", 
-        "Cellular/Molecular", 
-        "Neurobiology of Disease",
+        "Behavioral/Cognitive",
         "Systems/Circuits",
-        "Behavioral/Cognitive"
+        "Neurobiology of Disease",
+        "Cellular/Molecular",
+        "Development/Plasticity/Repair",
 ]
 
