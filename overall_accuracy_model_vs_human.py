@@ -129,7 +129,8 @@ def plot(use_human_abstract):
         hatch=all_llm_hatches,
         alpha=0.7,
         label=all_llm_names,
-        edgecolor='k'
+        edgecolor='k',
+        capsize=3
     )
 
     # human
