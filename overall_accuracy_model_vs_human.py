@@ -176,6 +176,7 @@ def plot(use_human_abstract):
 
     plt.legend(all_llm_names, loc='upper left', ncol=2, bbox_to_anchor=(-0.2, 1.2))
     plt.tight_layout()
+    plt.grid(axis='y', linestyle='--', alpha=0.6)
     if use_human_abstract:
         plt.savefig(f"{base_fname}_human_abstract.svg")
     else:
