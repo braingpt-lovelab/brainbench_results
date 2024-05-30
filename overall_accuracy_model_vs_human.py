@@ -8,6 +8,7 @@ from utils import model_list
 from utils import argparse_helper
 from utils import scorer
 
+plt.rcParams.update({'font.size': 16, 'font.weight': 'bold'})
 
 def get_llm_accuracies(model_results_dir, use_human_abstract=True):
     llms = model_list.llms
@@ -28,7 +29,9 @@ def get_llm_accuracies(model_results_dir, use_human_abstract=True):
             labels = np.load(f"{results_dir}/{label_fname}.npy")
 
             acc = scorer.acc(PPL_A_and_B, labels)
+            sem = scorer.sem(PPL_A_and_B, labels)
             llms[llm_family][llm]["acc"] = acc
+            llms[llm_family][llm]["sem"] = sem
     return llms
 
 
@@ -50,7 +53,8 @@ def get_human_accuracies(use_human_abstract):
             correct += row["correct"]
             total += 1
     acc = correct / total
-    return acc
+    sem = np.sqrt(acc * (1 - acc) / total)
+    return acc, sem
 
 
 def get_human_accuracies_top_expertise(use_human_abstract, top_pct=0.2):
@@ -80,7 +84,8 @@ def get_human_accuracies_top_expertise(use_human_abstract, top_pct=0.2):
         correct += row["correct"]
         total += 1
     acc = correct / total
-    return acc
+    sem = np.sqrt(acc * (1 - acc) / total)
+    return acc, sem
 
 
 def plot(use_human_abstract):
@@ -99,6 +104,7 @@ def plot(use_human_abstract):
 
     # llms
     all_llm_accuracies = []
+    all_llm_sems = []
     all_llm_names = []
     all_llm_colors = []
     all_llm_hatches = []
@@ -107,6 +113,7 @@ def plot(use_human_abstract):
     for family_index, llm_family in enumerate(llms.keys()):
         for llm in llms[llm_family]:
             all_llm_accuracies.append(llms[llm_family][llm]["acc"])
+            all_llm_sems.append(llms[llm_family][llm]["sem"])
             all_llm_names.append(llms[llm_family][llm]["llm"])
             all_llm_colors.append(llms[llm_family][llm]["color"])
             all_llm_hatches.append(llms[llm_family][llm]["hatch"])
@@ -117,6 +124,7 @@ def plot(use_human_abstract):
     # Bar
     ax.bar(
         all_llm_xticks, all_llm_accuracies,
+        yerr=all_llm_sems,
         color=all_llm_colors,
         hatch=all_llm_hatches,
         alpha=0.7,
@@ -126,11 +134,26 @@ def plot(use_human_abstract):
 
     # human
     # plot as horizontal line
-    human_acc = get_human_accuracies(use_human_abstract)
-    ax.axhline(y=human_acc, color='b', linestyle='--', lw=3)
+    human_acc, human_sem = get_human_accuracies(use_human_abstract)
+    ax.axhline(
+        xmin=all_llm_xticks[0], 
+        xmax=all_llm_xticks[-1]+1,
+        y=human_acc, 
+        color='b', 
+        linestyle='--', 
+        lw=3
+    )
+    ax.fill_between(
+        [all_llm_xticks[0], all_llm_xticks[-1]+1],
+        human_acc-human_sem,
+        human_acc+human_sem,
+        color='b',
+        alpha=0.2
+    )
+
 
     print('human_acc:', human_acc)
-    human_acc_top_expertise = get_human_accuracies_top_expertise(use_human_abstract)
+    human_acc_top_expertise, human_sem_top_expertise = get_human_accuracies_top_expertise(use_human_abstract)
     print('human_acc_top_expertise:', human_acc_top_expertise)
 
     # Add annotations (Human expert)
@@ -153,9 +176,9 @@ def plot(use_human_abstract):
     plt.legend(all_llm_names, loc='upper left', ncol=2, bbox_to_anchor=(-0.2, 1.2))
     plt.tight_layout()
     if use_human_abstract:
-        plt.savefig(f"{base_fname}_human_abstract.pdf")
+        plt.savefig(f"{base_fname}_human_abstract.svg")
     else:
-        plt.savefig(f"{base_fname}_llm_abstract.pdf")
+        plt.savefig(f"{base_fname}_llm_abstract.svg")
 
 
 if __name__ == "__main__":
