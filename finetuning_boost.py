@@ -9,9 +9,10 @@ from utils import scorer
 from utils import model_list
 from utils import argparse_helper
 
+plt.rcParams.update({"font.size": 16, "font.weight": "bold"})
 
 def get_llm_accuracies(use_human_abstract):
-    llms = model_list.llama_finetunes
+    llms = model_list.mistral_finetunes
     for llm_family in llms.keys():
         for llm in llms[llm_family]:
             if use_human_abstract:
@@ -27,6 +28,7 @@ def get_llm_accuracies(use_human_abstract):
             labels = np.load(f"{results_dir}/{label_fname}.npy")
 
             llms[llm_family][llm]["acc"] = scorer.acc(PPL_A_and_B, labels)
+            llms[llm_family][llm]["sem"] = scorer.sem(PPL_A_and_B, labels)
     return llms
 
 
@@ -44,6 +46,7 @@ def plot_acc_boost(ax, use_human_abstract):
     max_n_params = max(all_llm_params)
 
     all_llm_accuracies = []
+    all_llm_sems = []
     all_llm_names = []
     all_llm_colors = []
     all_llm_radius = []
@@ -52,6 +55,7 @@ def plot_acc_boost(ax, use_human_abstract):
     for family_index, llm_family in enumerate(llms.keys()):
         for llm in llms[llm_family]:
             all_llm_accuracies.append(llms[llm_family][llm]["acc"])
+            all_llm_sems.append(llms[llm_family][llm]["sem"])
             all_llm_names.append(llms[llm_family][llm]["llm"])
             all_llm_colors.append(llms[llm_family][llm]["color"])
             all_llm_radius.append(
@@ -62,10 +66,12 @@ def plot_acc_boost(ax, use_human_abstract):
     # Barplot
     ax.bar(
         all_llm_xticks, all_llm_accuracies,
+        # yerr=all_llm_sems,
         color=all_llm_colors,
         hatch=['/', '*'],
         alpha=0.4,
         width=0.5,
+        capsize=3,
     )
 
     # Add annotations
@@ -74,14 +80,13 @@ def plot_acc_boost(ax, use_human_abstract):
         ax.annotate(
             f"{acc:.2%}",
             xy=(all_llm_xticks[i], acc),
-            xytext=(all_llm_xticks[i], acc),
             ha='center',
             va='bottom',
             fontsize=12,
             color='k',
         )
 
-    ax.set_xlabel("Llama-2-7B (chat)")
+    ax.set_xlabel("Mistral-7B-v0.1")
     ax.set_ylabel("Accuracy")
     ax.set_xticks([0, 1, 2, 3])
     ax.set_xticklabels(["", "Pre-trained  ", "   Fine-tuned", ""])
@@ -93,6 +98,7 @@ def plot_acc_boost(ax, use_human_abstract):
         fontsize=20, fontweight='bold', 
         transform=ax.transAxes
     )
+    ax.grid(axis='y', linestyle='--', alpha=0.6)
 
 
 def plot_ppl_diff(
@@ -201,7 +207,6 @@ def plot_ppl_diff(
 
 
 def plot(use_human_abstract):
-    plt.rcParams.update({"font.size": 16, "font.weight": "bold"})
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
     # ax1: barplot of pretrained vs finetuned (acc boost)
@@ -213,8 +218,8 @@ def plot(use_human_abstract):
     # ax2: histogram of pretrained correct PPL and fineutned correct PPL
     plot_ppl_diff(
         ax=axes[1],
-        pretrained_dir=f"{model_results_dir}/meta-llama--Llama-2-7b-chat-hf",
-        finetuned_dir=f"{model_results_dir}/finetune_llama2_chat_7b",
+        pretrained_dir=f"{model_results_dir}/mistralai--Mistral-7B-v0.1",
+        finetuned_dir=f"{model_results_dir}/lora_r256_a512_finetune_mistral_7b_v01",
         use_human_abstract=use_human_abstract,
     )
 

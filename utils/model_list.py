@@ -148,3 +148,22 @@ llama_finetunes = {
         }
     }
 }
+
+mistral_finetunes = {
+    "llama": {
+        "mistralai/Mistral-7B-v0.1": {
+            "llm": "Mistral-7B-v0.1",
+            "color": '#8B9FC5',
+            "alpha": 0.3,
+            "hatch": "",
+            "n_params": 7
+        },
+        "lora_r256_a512_finetune_mistral_7b_v01": {
+            "llm": "Mistral-7B-v0.1 finetuned",
+            "color": '#5874DC',
+            "alpha": 0.3,
+            "hatch": "*",
+            "n_params": 7
+        }
+    }
+}
