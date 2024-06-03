@@ -86,8 +86,8 @@ def plot_acc_boost(ax, use_human_abstract):
             color='k',
         )
 
-    ax.set_xlabel("Mistral-7B-v0.1")
-    ax.set_ylabel("Accuracy")
+    ax.set_xlabel("Mistral-7B-v0.1", fontweight='normal')
+    ax.set_ylabel("Accuracy", fontweight='normal')
     ax.set_xticks([0, 1, 2, 3])
     ax.set_xticklabels(["", "Pre-trained  ", "   Fine-tuned", ""])
     ax.set_ylim([0.5, 1])
@@ -194,7 +194,8 @@ def plot_ppl_diff(
         alpha=0.3,
         linewidth=0.
     )
-    ax.set_xlabel("PPL of correct answer")
+    ax.set_xlabel("PPL of correct answer", fontweight='normal')
+    ax.set_ylabel("Density", fontweight='normal')
     ax.legend(loc='upper right')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
