@@ -131,7 +131,7 @@ def plot(use_human_abstract):
         [0, pair[0], 0, 0, 0],
         color='purple',
         marker='*',
-        label="W/ coherent context"
+        label="Coherent context"
     )
 
     ax.scatter(
@@ -139,7 +139,7 @@ def plot(use_human_abstract):
         [0, 0, pair[2], 0, 0],
         color='green',
         marker='o',
-        label="W/ swapped context"
+        label="Swapped context"
     )
 
     ax.scatter(
@@ -148,7 +148,7 @@ def plot(use_human_abstract):
         c='none',
         edgecolors='red',
         marker='o',
-        label="W/O context"
+        label="Without context"
     )
     
     # Plot human expert
@@ -170,7 +170,8 @@ def plot(use_human_abstract):
     ax.set_ylabel("Accuracy")
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    plt.legend(loc='upper right')
+    # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax.legend(loc='upper right')
     plt.tight_layout()
     if use_human_abstract:
         plt.savefig(f"{figs_dir}/{base_fname}_human_abstract.pdf")
