@@ -127,6 +127,52 @@ llms = {
             "Initial_Release": "Sept\n2023",
         },
     },
+    "gpt2": {
+        "gpt2_scratch_neuro_tokenizer": {
+            "llm": "GPT2-124M (scratch)",
+            "color": '#763C4B',
+            "alpha": 0.3,
+            "hatch": "",
+        },
+        "gpt2-medium_scratch_neuro_tokenizer": {
+            "llm": "GPT2-335M (scratch)",
+            "color": '#763C4B',
+            "alpha": 0.5,
+            "hatch": ".",
+        },
+        "gpt2-large_scratch_neuro_tokenizer": {
+            "llm": "GPT2-774M (scratch)",
+            "color": '#763C4B',
+            "alpha": 0.9,
+            "hatch": "+",
+        },
+    },
+    "phi3": {
+        "microsoft--Phi-3-mini-4k-instruct": {
+            "llm": "Phi3-3.8B-4K (instruct)",
+            "color": '#FB6602',
+            "alpha": 0.3,
+            "hatch": "/",
+            "n_params": 4,
+        },
+    },
+    "TinyLlama": {
+        "TinyLlama--TinyLlama_v1.1": {
+            "llm": "TinyLlama-1.1B-v1.1",
+            "color": '#8A5082',
+            "alpha": 0.3,
+            "hatch": "",
+            "n_params": 4,
+        },
+        "TinyLlama--TinyLlama-1.1B-Chat-v1.0":
+        {
+            "llm": "TinyLlama-1.1B-Chat-v1.0",
+            "color": '#8A5082',
+            "alpha": 0.3,
+            "hatch": "/",
+            "n_params": 4,
+        },
+    },
 }
 
 
