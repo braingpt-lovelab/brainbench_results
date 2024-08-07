@@ -6,3 +6,6 @@ subfield_names = [
         "Development/Plasticity/Repair",
 ]
 
+subfield_colors = [
+    "#F5CEC7", "#E79796", "#FFC988", "#FFB284", "#C6C09C"
+]
