@@ -224,7 +224,7 @@ def radar_plot(use_human_abstract, top_npct_expertise=None):
         "Systems/Circuits": "Sys/Circ"
     }
     
-    all_subfields_human = get_human_acc_subfields(use_human_abstract, top_npct_expertise)
+    all_subfields_human, _ = get_human_acc_subfields(use_human_abstract, top_npct_expertise)
     all_subfields_llms = get_llm_acc_subfields(use_human_abstract)
 
     # Initialize figure for comparing human and average LLM accuracy
