@@ -253,11 +253,11 @@ def radar_plot(use_human_abstract, top_npct_expertise=None):
     subfield_proportions = get_subfield_proportions(use_human_abstract)
 
     ax1.pie(
-        [subfield_proportions[sf] for sf in subfields.subfield_names][::-1], 
-        labels=[subfield_abbreviations[sf] for sf in subfields.subfield_names][::-1],
+        [subfield_proportions[sf] for sf in subfields.subfield_names], 
+        labels=[subfield_abbreviations[sf] for sf in subfields.subfield_names],
         autopct='%1.1f%%',
         startangle=90,
-        colors=["#F5CEC7", "#E79796", "#FFC988", "#FFB284", "#C6C09C"],
+        colors=subfields.subfield_colors,
         textprops={'fontsize': 16},
         wedgeprops={"edgecolor": "black", "linewidth": 0.5}
     )
@@ -265,8 +265,8 @@ def radar_plot(use_human_abstract, top_npct_expertise=None):
     # Second subplot: Radar chart
     ax2 = fig.add_subplot(122, polar=True)
     ax2.set_ylim(0.5, 1)
-    ax2.set_theta_offset(pi / 2)
-    ax2.set_theta_direction(-1)
+    ax2.set_theta_offset(pi*.9)
+    ax2.set_theta_direction(1)
     
     plt.xticks(angles[:-1], [subfield_abbreviations[sf] for sf in subfields.subfield_names], color='k', size=16)
     
@@ -310,8 +310,8 @@ if __name__ == "__main__":
     model_results_dir = "model_results"
     human_results_dir = "human_results"
     testcases_dir = "testcases"
-    # radar_plot(
-    #     use_human_abstract=parser.parse_args().use_human_abstract, 
-    #     top_npct_expertise=parser.parse_args().top_npct_expertise
-    # )
+    radar_plot(
+        use_human_abstract=parser.parse_args().use_human_abstract, 
+        top_npct_expertise=parser.parse_args().top_npct_expertise
+    )
     bar_plot(use_human_abstract=parser.parse_args().use_human_abstract)
