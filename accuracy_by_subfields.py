@@ -98,10 +98,14 @@ def get_human_acc_subfields(use_human_abstract, top_npct_expertise=None):
     for subfield in subfields.subfield_names:
         correct = []
         expertise = []
+        total_per_subfield = 0
         for _, row in df.iterrows():
             if row["journal_section"].startswith(who) and row["journal_section"].endswith(subfield):
                 correct.append(row["correct"])
                 expertise.append(row["expertise"])
+                total_per_subfield += 1
+
+        print(f"Subfield: {subfield}, human total: {total_per_subfield}")
 
         if top_npct_expertise:
             top_20_percentile = np.percentile(expertise, 100 - top_npct_expertise)
@@ -132,6 +136,7 @@ def get_subfield_proportions(use_human_abstract):
         for _, row in df.iterrows():
             if row[journal_column_name] == subfield:
                 total += 1
+        print(f"Subfield: {subfield}, total: {total}")
         subfield_proportions[subfield] = total / len(df)
     return subfield_proportions
 

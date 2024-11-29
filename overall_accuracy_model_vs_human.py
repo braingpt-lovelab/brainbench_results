@@ -3,6 +3,8 @@ import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import ttest_rel
+import pingouin as pg
 
 from utils import model_list
 from utils import argparse_helper
@@ -54,6 +56,7 @@ def get_human_accuracies(use_human_abstract):
             total += 1
     acc = correct / total
     sem = np.sqrt(acc * (1 - acc) / total)
+    print(f"correct: {correct}, total: {total}")
     return acc, sem
 
 
@@ -181,6 +184,15 @@ def plot(use_human_abstract):
         plt.savefig(f"{base_fname}_human_abstract.svg")
     else:
         plt.savefig(f"{base_fname}_llm_abstract.svg")
+
+
+    # stats
+    # ttest, p value, ci cohen's d etc.
+    # ttest between human and llm
+    all_llm_accuracies = np.array(all_llm_accuracies)
+    human_acc = np.array([human_acc] * len(all_llm_accuracies))
+    results = pg.ttest(all_llm_accuracies, human_acc, paired=True)
+    print(results)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import os
 import argparse
 import numpy as np
 import seaborn as sns
+import pingouin as pg
 from scipy import stats
 import matplotlib.pyplot as plt
 
@@ -169,8 +170,8 @@ def plot_ppl_diff(
     t_diff, p_diff = stats.ttest_rel(pretrained_diff, finetuned_diff)
     print(f"t_diff: {t_diff}, p_diff: {p_diff}")
 
-    t_correct_PPL, p_correct_PPL = stats.ttest_rel(pretrained_correct_PPL, finetuned_correct_PPL)
-    print(f"t_correct_PPL: {t_correct_PPL}, p_correct_PPL: {p_correct_PPL}")
+    results = pg.ttest(pretrained_correct_PPL, finetuned_correct_PPL, paired=True)
+    print(results)
 
     # Plot
     # Histogram of pretrained correct PPL and fineutned correct PPL

@@ -117,7 +117,7 @@ def ppl_incorrect_correct_by_pubdate(rank_method):
             pubdates_ranks,
             ppl_diff_ranks
         )
-        print(f"{llm}: correlation={corr:.2f}, p={p:.2f}")
+        print(f"{llm}: correlation={corr:.3f}, p={p:.3f}")
         axes[llm_index].set_title(f"{llm_names[llm]}")
         axes[llm_index].set_xlabel("Publication date")
         axes[llm_index].set_ylabel("Test case difficulty\n(PPL difference)")
