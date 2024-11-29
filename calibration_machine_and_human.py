@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
 
 from utils import model_list
 from utils import argparse_helper
@@ -204,6 +205,116 @@ def _plot_calibration_human(human_results_dir, ax):
     )
 
 
+def logistic_regression_calibration(n_folds, pct_train):
+    """
+    Train LR on x: abs(PPL_A - PPL_B), y: correct or not for each testcase
+    """
+    np.random.seed(42)
+    # model logisitic regression
+    # using ppl diff to predict correct or not
+    for llm_family in llms:
+        for llm in llms[llm_family]:
+            results_dir = f"{model_results_dir}/{llm.replace('/', '--')}/{type_of_abstract}"
+            PPL_A_and_B = np.load(f"{results_dir}/{PPL_fname}.npy")
+            labels = np.load(f"{results_dir}/{label_fname}.npy")
+
+            # Calculate x: abs(PPL_A - PPL_B), y: correct or not
+            x = np.abs(PPL_A_and_B[:, 0] - PPL_A_and_B[:, 1])
+            y = []
+            for abstract_idx, (ppl_A, ppl_B) in enumerate(PPL_A_and_B):
+                if (
+                    labels[abstract_idx] == 0 and ppl_A < ppl_B
+                ) or (
+                    labels[abstract_idx] == 1 and ppl_A > ppl_B
+                ):
+                    y.append(1)
+                else:
+                    y.append(0)
+            
+            # Create kfold split, fit the model, and produce coef and 
+            # intercept as well as their standard errors; and then do significance
+            # testing on coef
+            coefs = []
+            intercepts = []
+            for fold in range(n_folds):
+                # For each fold, randomly allocate `pct_train`% of the data to train
+                # and the rest to test
+                n_train = int(pct_train * len(x))
+                train_indices = np.random.choice(len(x), n_train, replace=False)
+                test_indices = np.setdiff1d(np.arange(len(x)), train_indices)
+                x_train, y_train = x[train_indices], np.array(y)[train_indices]
+                x_test, y_test = x[test_indices], np.array(y)[test_indices]
+
+                # Fit LR
+                lr = LogisticRegression(random_state=42)
+                lr.fit(x_train.reshape(-1, 1), y_train)
+                coefs.append(lr.coef_[0][0])
+                intercepts.append(lr.intercept_[0])
+            
+            # Print the mean and standard error of the coef and intercept
+            mean_coef = np.mean(coefs)
+            sem_coef = stats.sem(coefs)
+            mean_intercept = np.mean(intercepts)
+            sem_intercept = stats.sem(intercepts)
+            t, p = stats.ttest_1samp(coefs, 0)
+            print(f"\nLLM: {llms[llm_family][llm]['llm']}")
+            print(f"coef: {mean_coef:.2f}+-({sem_coef:.2f})")
+            print(f"intercept: {mean_intercept:.2f}+-({sem_intercept:.2f})")
+            if p/2 < 0.001:
+                display_p = "<.001"
+            print(f"t({n_folds-1})={t:.2f}, p(one-sided){display_p}")
+
+
+    # Human experts
+    df = pd.read_csv(f"{human_results_dir}/data/participant_data.csv")
+    if use_human_abstract:
+        who = "human"
+    else:
+        who = "machine"
+    confidences = []
+    corrects_n_incorrects = []  # 1 and 0
+    for _, row in df.iterrows():
+        if row["journal_section"].startswith(who):
+            # get confidence and correct
+            confidences.append(row["confidence"])
+            corrects_n_incorrects.append(row["correct"])
+    
+    # Fit LR
+    lr = LogisticRegression(random_state=42)
+    # Create kfold split, fit the model, and produce coef and 
+    # intercept as well as their standard errors; and then do significance
+    # testing on coef
+    coefs = []
+    intercepts = []
+    for fold in range(n_folds):
+        # For each fold, randomly allocate `pct_train`% of the data to train
+        # and the rest to test
+        n_train = int(pct_train * len(confidences))
+        train_indices = np.random.choice(len(confidences), n_train, replace=False)
+        test_indices = np.setdiff1d(np.arange(len(confidences)), train_indices)
+        x_train, y_train = np.array(confidences)[train_indices], np.array(corrects_n_incorrects)[train_indices]
+        x_test, y_test = np.array(confidences)[test_indices], np.array(corrects_n_incorrects)[test_indices]
+
+        # Fit LR
+        lr.fit(x_train.reshape(-1, 1), y_train)
+        coefs.append(lr.coef_[0][0])
+        intercepts.append(lr.intercept_[0])
+    
+    # Print the mean and standard error of the coef and intercept
+    mean_coef = np.mean(coefs)
+    sem_coef = stats.sem(coefs)
+    mean_intercept = np.mean(intercepts)
+    sem_intercept = stats.sem(intercepts)
+    t, p = stats.ttest_1samp(coefs, 0)
+    print(f"\nHuman experts")
+    print(f"coef: {mean_coef:.2f}+-({sem_coef:.2f})")
+    print(f"intercept: {mean_intercept:.2f}+-({sem_intercept:.2f})")
+    
+    if p/2 < 0.001:
+        display_p = "<.001"
+    print(f"t({n_folds-1})={t:.2f}, p(one-sided){display_p}")
+
+
 def main():
     """
     4*4 figure, with the first subplot for human experts, and the rest for LLMs.
@@ -247,6 +358,9 @@ def main():
     plt.tight_layout()
     plt.savefig(f"figs/calibration_{type_of_abstract}.pdf")
     plt.close()
+
+    # Logistic regression
+    logistic_regression_calibration(n_folds=5, pct_train=0.8)
         
 
 if __name__ == "__main__":
