@@ -17,7 +17,7 @@ git clone git@github.com:braingpt-lovelab/brainbench_results.git --recursive
 * Figure S6 | Figure S24: `python error_correlation_human_vs_machine.py`
 * Figure S7: `python eval_leakage.py`
 * Figure S8: `python accuracy_correlate_pubdate.py`
-* Figure S17 | Figure S18: `expertise_analyses.py`
+* Figure S17 | Figure S18: `python expertise_analyses.py`
 
 ### To obtain human results:
 Please refer to the dedicated repo - [https://github.com/braingpt-lovelab/brainbench_participant_data/tree/main](https://github.com/braingpt-lovelab/brainbench_participant_data/tree/a819a1b3766abe4817b1ef81ebe7a0a7a351aa99)
