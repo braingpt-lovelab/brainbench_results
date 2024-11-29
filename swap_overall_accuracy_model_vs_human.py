@@ -10,6 +10,8 @@ from utils import argparse_helper
 from utils import scorer
 from overall_accuracy_model_vs_human \
     import get_llm_accuracies as get_llm_accuracies_original
+from iso_overall_accuracy_model_vs_human \
+    import get_llm_accuracies as get_llm_accuracies_iso
 
 
 def get_llm_accuracies(model_results_dir, use_human_abstract=True):
@@ -65,65 +67,88 @@ def plot(use_human_abstract):
     2) Plot human experts as a horizontal line.
     """
     llms_original = get_llm_accuracies_original(model_results_dir, use_human_abstract)
+    llms_iso = get_llm_accuracies_iso(model_results_dir, use_human_abstract)
     llms = get_llm_accuracies(model_results_dir, use_human_abstract)
     
     fig, ax = plt.subplots(figsize=(6, 6))
 
     all_llm_accuracies_original = []
+    all_llm_accuracies_iso = []
     all_llm_accuracies = []
     all_llm_names = []
 
     for family_index, llm_family in enumerate(llms.keys()):
         for llm in llms[llm_family]:
             all_llm_accuracies_original.append(llms_original[llm_family][llm]["acc"])
+            all_llm_accuracies_iso.append(llms_iso[llm_family][llm]["acc"])
             all_llm_accuracies.append(llms[llm_family][llm]["acc"])
             all_llm_names.append(llms[llm_family][llm]["llm"])
 
-    # Plot individual LLMs original and swapped accuracy
+    # Plot individual LLMs original, iso and swapped accuracy
     # connected by a dotted line
-    x = [0, 0.4, 0.6, 1]
+    x = [0, 0.3, 0.5, 0.7, 1]
     for i in range(len(all_llm_accuracies_original)):
         ax.plot(
-            x[1:-1],
-            [all_llm_accuracies_original[i], all_llm_accuracies[i]],
+            x[1:3],
+            [all_llm_accuracies_original[i], 
+             all_llm_accuracies[i], 
+            #  all_llm_accuracies_iso[i]
+            ],
             color='grey',
             alpha=0.5,
             linestyle='--',
         )
 
-    # Plot individual LLMs original and swapped accuracy as curve plot
-    # convert all_llm_accuracies_original and all_llm_accuracies to pairs
-    acc_pairs = list(zip(all_llm_accuracies_original, all_llm_accuracies))
+    # Plot individual LLMs original, iso and swapped accuracy as curve plot
+    # convert all_llm_accuracies_original, all_llm_accuracies_iso and all_llm_accuracies to pairs
+    acc_pairs = list(zip(all_llm_accuracies_original, all_llm_accuracies_iso, all_llm_accuracies))
     for i, pair in enumerate(acc_pairs):
         ax.scatter(
             x,
-            [0, pair[0], 0, 0],
+            [0, pair[0], 0, 0, 0],
             color='purple',
             marker='*',
         )
 
         ax.scatter(
             x,
-            [0,  0, pair[1], 0],
-            color='red',
+            [0,  0, 0, pair[1], 0],
+            color='none',
+            edgecolors='red',
+            marker='o',
+        )
+
+        ax.scatter(
+            x,
+            [0, 0, pair[2], 0, 0],
+            color='green',
             marker='o',
         )
     
     # Hack to get legend
     ax.scatter(
         x,
-        [0, pair[0], 0, 0],
+        [0, pair[0], 0, 0, 0],
         color='purple',
         marker='*',
-        label="LLMs with coherent context"
+        label="Coherent context"
     )
 
     ax.scatter(
         x,
-        [0, 0, pair[1], 0],
-        color='red',
+        [0, 0, pair[2], 0, 0],
+        color='green',
         marker='o',
-        label="LLMs with swapped context"
+        label="Swapped context"
+    )
+
+    ax.scatter(
+        x,
+        [0, 0, 0, pair[1], 0],
+        c='none',
+        edgecolors='red',
+        marker='o',
+        label="Without context"
     )
     
     # Plot human expert
@@ -145,7 +170,8 @@ def plot(use_human_abstract):
     ax.set_ylabel("Accuracy")
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1))
+    # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax.legend(loc='upper right')
     plt.tight_layout()
     if use_human_abstract:
         plt.savefig(f"{figs_dir}/{base_fname}_human_abstract.pdf")
