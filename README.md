@@ -1,21 +1,23 @@
 # brainbench_results
-Raw results and plotting scripts for paper https://arxiv.org/abs/2403.03230
+Raw results and plotting scripts for paper [https://www.nature.com/articles/s41562-024-02046-9](https://www.nature.com/articles/s41562-024-02046-9)
 
 ### To work with this repo locally:
 ```
 git clone git@github.com:braingpt-lovelab/brainbench_results.git --recursive
 ```
 
-### To plot figures in the paper:
-* Fig. 3A | Fig. S8: `python overall_accuracy_model_vs_human.py --use_human_abstract <True|False>`
-* Fig. 3B | Fig. S9 | Fig. S3 | Fig. S11: `python accuracy_by_subfields.py --use_human_abstract <True|False>`
-* Fig. 3C | Fig. S10: `python accuracy_by_positions.py --use_human_abstract <True|False>`
-* Fig. 4 | Fig. S13: `python calibration_machine_and_human.py --use_human_abstract <True|False>`
-* Fig. 5: `python finetuning_boost.py`
-* Fig. S2: `python iso_overall_accuracy_model_vs_human.py`
-* Fig. S4 | Fig. S12: `python error_correlation_human_vs_machine.py`
-* Fig. S5: `python eval_leakage.py`
-* Fig. S6: `python accuracy_correlate_pubdate.py`
+### To plot figures/tables in the paper:
+* Figure 3A | Figure S20: `python overall_accuracy_model_vs_human.py --use_human_abstract <True|False>`
+* Figure 3B | Figure S5 | Figure S21 | Figure S23: `python accuracy_by_subfields.py --use_human_abstract <True|False>`
+* Figure 3C | Figure S22: `python accuracy_by_positions.py --use_human_abstract <True|False>`
+* Figure 4 | Figure S25 | Table S3: `python calibration_machine_and_human.py --use_human_abstract <True|False>`
+* Figure 5: `python finetuning_boost.py`
+* Figure S3: `python iso_overall_accuracy_model_vs_human.py`
+* Figure S4: `python swap_overall_accuracy_model_vs_human.py`
+* Figure S6 | Figure S24: `python error_correlation_human_vs_machine.py`
+* Figure S7: `python eval_leakage.py`
+* Figure S8: `python accuracy_correlate_pubdate.py`
+* Figure S17 | Figure S18: `expertise_analyses.py`
 
 ### To obtain human results:
 Please refer to the dedicated repo - [https://github.com/braingpt-lovelab/brainbench_participant_data/tree/main](https://github.com/braingpt-lovelab/brainbench_participant_data/tree/a819a1b3766abe4817b1ef81ebe7a0a7a351aa99)
